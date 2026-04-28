@@ -17,7 +17,7 @@ pipeline {
                         -v $(pwd)/app:/app \
                         -w /app \
                         python:3.11-slim \
-                        sh -c "pip install flask pytest && pytest test_app.py -v"
+                        sh -c "pip install flask pytest && python -m pytest test_app.py -v"
                 '''
             }
         }
