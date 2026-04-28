@@ -9,19 +9,16 @@ pipeline {
             }
         }
         
-        stage('Test') {
-            steps {
+       stage('Test') {
+             steps {
                 echo 'Execution des tests...'
                 sh '''
                     cd app
-                    docker run --rm \
-                        -v $PWD:/app \
-                        -w /app \
-                        python:3.11-slim \
-                        sh -c "pip install flask pytest && python -m pytest test_app.py -v"
-                '''
-            }
-        }
+                    docker build -t test-image -f Dockerfile .
+                    docker run --rm test-image sh -c "pip install pytest && python -m pytest test_app.py -v"
+                 '''
+    }
+}
         
         stage('Security Scan - Trivy') {
             steps {
