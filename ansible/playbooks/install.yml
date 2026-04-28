@@ -1,0 +1,50 @@
+---
+- name: Installation des outils de base
+  hosts: servers
+  become: yes
+
+  tasks:
+    - name: Mise a jour du systeme
+      apt:
+        update_cache: yes
+        upgrade: yes
+
+    - name: Installation des dependances
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - git
+          - unzip
+          - software-properties-common
+        state: present
+
+    - name: Installation de Docker
+      shell: curl -fsSL https://get.docker.com | sh
+
+    - name: Ajout ubuntu au groupe docker
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    - name: Demarrage Docker
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Installation Java 17
+      apt:
+        name: openjdk-17-jdk
+        state: present
+
+    - name: Verification Java
+      shell: java -version
+      register: java_out
+
+    - name: Affichage Java
+      debug:
+        msg: "{{ java_out.stderr }}"

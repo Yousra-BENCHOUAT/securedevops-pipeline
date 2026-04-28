@@ -1,0 +1,18 @@
+# Terraform
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+*.tfvars
+
+# Ansible
+*.retry
+
+# AWS
+*.pem
+
+# Python
+__pycache__/
+*.pyc
+.env
+venv/

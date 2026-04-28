@@ -1,0 +1,58 @@
+pipeline {
+    agent any
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Recuperation du code...'
+                checkout scm
+            }
+        }
+        
+        stage('Test') {
+            steps {
+                echo 'Execution des tests...'
+                sh 'pip install -r app/requirements.txt'
+                sh 'pytest app/test_app.py -v'
+            }
+        }
+        
+        stage('Security Scan - Trivy') {
+            steps {
+                echo 'Scan de securite avec Trivy...'
+                sh 'docker build -t securedevops-app:latest ./app'
+                sh 'trivy image --severity HIGH,CRITICAL securedevops-app:latest'
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                echo 'Construction de l image Docker...'
+                sh 'docker build -t securedevops-app:${BUILD_NUMBER} ./app'
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                echo 'Deploiement de l application...'
+                sh '''
+                    docker rm -f securedevops-app || true
+                    docker run -d \
+                        --name securedevops-app \
+                        --restart always \
+                        -p 5000:5000 \
+                        securedevops-app:${BUILD_NUMBER}
+                '''
+            }
+        }
+    }
+    
+    post {
+        success {
+            echo 'Pipeline termine avec succes !'
+        }
+        failure {
+            echo 'Pipeline echoue !'
+        }
+    }
+}
