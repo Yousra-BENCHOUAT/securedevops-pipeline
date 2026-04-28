@@ -13,8 +13,9 @@ pipeline {
             steps {
                 echo 'Execution des tests...'
                 sh '''
+                    cd app
                     docker run --rm \
-                        -v $(pwd)/app:/app \
+                        -v $PWD:/app \
                         -w /app \
                         python:3.11-slim \
                         sh -c "pip install flask pytest && python -m pytest test_app.py -v"
