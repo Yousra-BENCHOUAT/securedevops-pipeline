@@ -10,23 +10,23 @@ pipeline {
         }
         
         stage('Test') {
-             steps {
-                 echo 'Execution des tests...'
-                 sh '''
+            steps {
+                echo 'Execution des tests...'
+                sh '''
                     docker run --rm \
-                    -v $(pwd)/app:/app \
-                    -w /app \
-                    python:3.11-slim \
-                    sh -c "pip install -r requirements.txt && pytest test_app.py -v"
+                        -v $(pwd)/app:/app \
+                        -w /app \
+                        python:3.11-slim \
+                        sh -c "pip install flask pytest && pytest test_app.py -v"
                 '''
-    }
-}
+            }
+        }
         
         stage('Security Scan - Trivy') {
             steps {
                 echo 'Scan de securite avec Trivy...'
                 sh 'docker build -t securedevops-app:latest ./app'
-                sh 'trivy image --severity HIGH,CRITICAL securedevops-app:latest'
+                sh 'docker run --rm aquasec/trivy image --severity HIGH,CRITICAL securedevops-app:latest'
             }
         }
         
